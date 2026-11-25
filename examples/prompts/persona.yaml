@@ -1,0 +1,6 @@
+version: 1
+language: [ru, uk]
+style_corpus:
+  owner_id: 42
+  usage: local_only
+  path: owner-messages.example.jsonl

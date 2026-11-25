@@ -1,0 +1,7 @@
+{
+  "messages": [
+    {"id": 1, "type": "message", "from_id": "user7", "text": "Когда начнём?"},
+    {"id": 2, "type": "message", "from_id": "user42", "text": "А почему так?"},
+    {"id": 3, "type": "message", "from_id": "user42", "text": ["Да, ", {"type": "bold", "text": "спасибо!"}]}
+  ]
+}
