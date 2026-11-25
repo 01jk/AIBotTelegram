@@ -1,0 +1,51 @@
+purpose:
+  stands_in_for: Telegram Bot API getMe, getUpdates, sendMessage and answerCallbackQuery
+  unblocks: Checking owner-only long polling, menu buttons and durable control commands on local SQLite
+assumptions:
+  - id: telegram-polling-offset
+    status: supported
+    claim: The next getUpdates call confirms received updates using the highest update ID plus one.
+    reason: Telegram documents offset acknowledgement. The local mock checks the offset before returning the end-of-run conflict.
+    verification: Postman CLI served getMe, three getUpdates calls and three sendMessage calls. SQLite stored update 4 and paused OBSERVE. The non-owner mode callback had no effect.
+    source: https://core.telegram.org/bots/api#getupdates
+    updated_at: "2026-11-08"
+  - id: telegram-control-inline-menu
+    status: supported
+    claim: A private control message can carry an inline keyboard and return a callback query when pressed.
+    reason: Telegram documents inline keyboards, callback_query updates and answerCallbackQuery.
+    verification: The local Postman mock checked the keyboard on the welcome message and recorded one answerCallbackQuery for the owner. SQLite confirmed that the owner pause callback ran and the other sender's mode callback was ignored.
+    source: https://core.telegram.org/bots/api#callbackquery
+    updated_at: "2026-11-08"
+  - id: telegram-bot-api-errors
+    status: supported
+    claim: The control poller waits on a 429 and exits on a 409 conflict.
+    reason: The mock returned a 429 with retry_after before the valid batch and a 409 after acknowledgement.
+    verification: The local Postman request log showed a delay of about one second before retry and no requests after the 409. Repeated successfully after the pause began covering model requests and the scheduled digest. The alias /stop and model requests during pause were checked separately in tests/test_control_bot.py and tests/test_openrouter.py. Live command delivery was outside this run.
+    source: https://core.telegram.org/bots/api#responseparameters
+    updated_at: "2026-11-07"
+  - id: telegram-qr-photo-upload
+    status: supported
+    claim: sendPhoto accepts a PNG in a multipart request and can request content protection.
+    reason: The Bot API specifies multipart upload and the protect_content option. The owner-only QR path uses both.
+    verification: Covered by a separate loopback HTTP test with a fake QR login, including deletion of the photo and filtering of non-owner updates. The Postman simulation above does not exercise the QR endpoint. A real scan still requires the owner.
+    source: https://core.telegram.org/bots/api#sendphoto
+    updated_at: "2026-11-07"
+  - id: telegram-owner-key-reply
+    status: supported
+    claim: The bot can request a direct reply and delete the owner message in its private chat.
+    reason: Telegram specifies ForceReply and allows bots to delete incoming private messages.
+    verification: A separate loopback HTTP test checks that a group reply is ignored, a reply to an unrelated message cannot change the key, deletion precedes verification, and a different owner or a failed deletion leaves the original key in place. The Postman polling regression uses no credential updates. Live replacement awaits a new key from the owner.
+    source: https://core.telegram.org/bots/api#deletemessage
+    updated_at: "2026-11-07"
+  - id: telegram-public-chat-resolution
+    status: supported
+    claim: getChat resolves a public supergroup username to its signed Telegram chat ID.
+    reason: The Bot API accepts public usernames and returns the chat type and numeric ID. The control command uses that ID for its local permission change.
+    verification: A read-only server probe resolved the supplied public supergroup. A separate loopback HTTP test exercises URL and username arguments, private-peer rejection, and the owner gate. The Postman polling regression does not call getChat.
+    source: https://core.telegram.org/bots/api#getchat
+    updated_at: "2026-11-07"
+fingerprints:
+  id: telegram-control
+  date: "2026-11-06"
+  commit: null
+  cli: "1.83.1"

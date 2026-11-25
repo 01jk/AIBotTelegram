@@ -1,0 +1,8 @@
+free_only: true
+models:
+  conversation: {primary: null, fallbacks: []}
+  participation: {primary: null, fallbacks: []}
+  analysis: {primary: null, fallbacks: []}
+  mining: {primary: null, fallbacks: []}
+  summarization: {primary: null, fallbacks: []}
+  style_review: {primary: null, fallbacks: []}

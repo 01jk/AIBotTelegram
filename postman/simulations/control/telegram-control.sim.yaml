@@ -1,0 +1,6 @@
+simulation: telegram-control
+routing: path
+mocks:
+  - name: Telegram Bot API
+    routeKey: telegram
+    path: postman/mocks/telegram-control

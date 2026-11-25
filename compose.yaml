@@ -1,0 +1,28 @@
+services:
+  companion:
+    build: .
+    init: true
+    env_file:
+      - path: ${COMPANION_ENV_FILE:-.env}
+        required: false
+    environment:
+      DATA_DIR: /app/data
+      TELEGRAM_SESSION_PATH: /app/data/telegram.session
+    volumes:
+      - companion-data:/app/data
+    restart: unless-stopped
+    stop_grace_period: 30s
+    healthcheck:
+      test: ["CMD", "python", "-m", "aibottelegram", "healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: local
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  companion-data:
